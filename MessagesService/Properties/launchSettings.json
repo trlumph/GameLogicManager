@@ -1,0 +1,22 @@
+﻿{
+  "profiles": {
+    "MessagesService1": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5074",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HAZELCAST_NODE": "localhost:5701"
+      }
+    },
+    "MessagesService2": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5075",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HAZELCAST_NODE": "localhost:5702"
+      }
+    }
+  }
+}

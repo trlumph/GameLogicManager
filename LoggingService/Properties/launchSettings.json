@@ -1,0 +1,31 @@
+﻿{
+  "profiles": {
+    "LoggingService1": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5064",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HAZELCAST_NODE": "localhost:5701"
+      }
+    },
+    "LoggingService2": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5065",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HAZELCAST_NODE": "localhost:5702"
+      }
+    },
+    "LoggingService3": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5066",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HAZELCAST_NODE": "localhost:5703"
+      }
+    }
+  }
+}
