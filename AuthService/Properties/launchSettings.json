@@ -12,19 +12,17 @@
     "LoggingService2": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "http://localhost:5065",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "HAZELCAST_NODE": "localhost:5702"
+        "ASPNETCORE_URLS": "http://localhost:5065"
       }
     },
     "LoggingService3": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "http://localhost:5066",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "HAZELCAST_NODE": "localhost:5703"
+        "ASPNETCORE_URLS": "http://localhost:5066"
       }
     }
   }

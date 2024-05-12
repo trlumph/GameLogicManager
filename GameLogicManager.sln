@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacadeService", "FacadeService\FacadeService.csproj", "{64E8002D-D201-431E-A49D-FCB969C927B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingService", "LoggingService\LoggingService.csproj", "{512FB64E-6C50-401C-8890-3A5F6FF95FC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{512FB64E-6C50-401C-8890-3A5F6FF95FC4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagesService", "MessagesService\MessagesService.csproj", "{72054317-50C0-4F5F-96FE-8501EFAEEFD0}"
 EndProject
@@ -11,6 +11,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HazelcastBenchmarks", "HazelcastBenchmarks\HazelcastBenchmarks.csproj", "{C344BBEB-1B8A-4A44-B4B1-E685BC5119AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HazelcastTests", "HazelcastTests\HazelcastTests.csproj", "{FFCFE59A-B3F0-4B11-AB29-33457CB6F363}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsulManagerService", "ConsulManagerService\ConsulManagerService.csproj", "{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +44,9 @@ Global
 		{FFCFE59A-B3F0-4B11-AB29-33457CB6F363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFCFE59A-B3F0-4B11-AB29-33457CB6F363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFCFE59A-B3F0-4B11-AB29-33457CB6F363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
