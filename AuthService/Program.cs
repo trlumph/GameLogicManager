@@ -34,7 +34,7 @@ var hzClient = await HazelcastClientFactory.StartNewClientAsync(hzOptions);
 app.Logger.LogInformation("Connected to Hazelcast node: {SelectedNode}", selectedNode);
 
 
-var serviceName = "logging-service";
+var serviceName = "auth-service";
 var serviceId = $"{serviceName}-{Guid.NewGuid()}";
 var servicePort = new Uri(builder.Configuration.GetValue<string>("ASPNETCORE_URLS")!).Port;
 
