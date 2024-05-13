@@ -1,7 +1,6 @@
 using Consul;
 using ConsulManagerService;
 using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
 using Hazelcast;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +12,16 @@ builder.Services.AddSingleton<IConsulClient, ConsulClient>(p =>
 
 builder.Services.AddSingleton<ConsulRegistrationManager>();
 builder.Services.AddSingleton<HazelcastConfigurationService>();
+
+// Register the UserRepository
+builder.Services.AddTransient<IUserRepository, UserRepository>(sp =>
+    new UserRepository(builder.Configuration.GetConnectionString("DefaultConnection")!));
+
+// Register the HazelcastService
+builder.Services.AddSingleton<IHazelcastService, HazelcastService>();
+
+// Register the EncryptionService
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 
 var app = builder.Build();
 
@@ -27,7 +36,6 @@ hzOptions.ClusterName = "hello-world";
 
 var hzClient = await HazelcastClientFactory.StartNewClientAsync(hzOptions);
 app.Logger.LogInformation("Connected to Hazelcast node: {SelectedNode}", selectedNode);
-
 
 var serviceName = "auth-service";
 var serviceId = $"{serviceName}-{Guid.NewGuid()}";
@@ -48,72 +56,59 @@ AppDomain.CurrentDomain.UnhandledException += async (sender, eventArgs) =>
     await consulManager.Deregister(consulClient, serviceId);
 };
 
-// MySQL connection string setup
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-const string ConnectionString = "server=127.0.0.1;uid=root;pwd=admin;database=mydb";
-var activeUsersMap = await hzClient.GetMapAsync<string, string>("activeUsers");
+// Register the HazelcastClient in the HazelcastService
+var hazelcastService = app.Services.GetRequiredService<IHazelcastService>();
+await hazelcastService.InitializeHazelcastClient(hzOptions);
 
 var client = new HttpClient();
 
-app.MapPost("/register", async ([FromBody] User user) =>
+app.MapPost("/register", async ([FromBody] User user, [FromServices] IUserRepository userRepository, [FromServices] IEncryptionService encryptionService) =>
 {
-    await using var connection = new MySqlConnection(ConnectionString);
-    await connection.OpenAsync();
-    var checkCmd = new MySqlCommand("SELECT COUNT(*) FROM users WHERE name = @name", connection);
-    checkCmd.Parameters.AddWithValue("@name", user.Name);
-    var count = (long)(await checkCmd.ExecuteScalarAsync())!;
-    if (count > 0) return Results.BadRequest("User already exists.");
+    var userExists = await userRepository.UserExistsAsync(user.Name);
+    if (userExists) return Results.BadRequest("User already exists.");
 
-    var addCmd = new MySqlCommand("INSERT INTO users (name, password) VALUES (@name, @password)", connection);
-    addCmd.Parameters.AddWithValue("@name", user.Name);
-    var hash = BCrypt.Net.BCrypt.HashPassword(user.Password);
-    addCmd.Parameters.AddWithValue("@password", hash);
-    var result = await addCmd.ExecuteNonQueryAsync();
-    if (result == 0) return Results.BadRequest("Registration failed.");
+    var hash = encryptionService.HashPassword(user.Password);
+    var result = await userRepository.AddUserAsync(user.Name, hash);
+    if (!result) return Results.BadRequest("Registration failed.");
 
     await client.PostAsync($"http://localhost:8181/scores/user/{user.Name}", new StringContent(""));
     return Results.Ok("Registered.");
 });
 
-app.MapPost("/login", async ([FromBody] User user) =>
+app.MapPost("/login", async ([FromBody] User user, [FromServices] IUserRepository userRepository, [FromServices] IHazelcastService hazelcastService, [FromServices] IEncryptionService encryptionService) =>
 {
-    var activeToken = await activeUsersMap.GetAsync(user.Name);
+    var activeToken = await hazelcastService.GetActiveUserTokenAsync(user.Name);
     if (activeToken != null) return Results.BadRequest("User already logged in.");
 
-    await using var connection = new MySqlConnection(ConnectionString);
-    await connection.OpenAsync();
-    var cmd = new MySqlCommand("SELECT password FROM users WHERE name = @name", connection);
-    cmd.Parameters.AddWithValue("@name", user.Name);
-    var dbPassword = (string?)await cmd.ExecuteScalarAsync();
-
-    if (dbPassword != null && BCrypt.Net.BCrypt.Verify(user.Password, dbPassword))
+    var dbPassword = await userRepository.GetUserPasswordAsync(user.Name);
+    if (dbPassword != null && encryptionService.VerifyPassword(user.Password, dbPassword))
     {
         var token = Guid.NewGuid().ToString();
-        await activeUsersMap.SetAsync(user.Name, token);
-        return Results.Ok(new {Token = token});
+        await hazelcastService.SetActiveUserTokenAsync(user.Name, token);
+        return Results.Ok(new { Token = token });
     }
     return Results.BadRequest("Invalid credentials.");
 });
 
-app.MapPost("/logout", async ([FromBody] LogoutRequest request) =>
+app.MapPost("/logout", async ([FromBody] LogoutRequest request, [FromServices] IHazelcastService hazelcastService) =>
 {
-    var token = await activeUsersMap.GetAsync(request.Name);
+    var token = await hazelcastService.GetActiveUserTokenAsync(request.Name);
     if (token == null) return Results.BadRequest("User not logged in.");
     if (token != request.Token) return Results.BadRequest("Invalid token.");
 
-    await activeUsersMap.DeleteAsync(request.Name);
+    await hazelcastService.DeleteActiveUserTokenAsync(request.Name);
     return Results.Ok("Logged out.");
 });
 
-app.MapGet("/isOnline", async (string name) =>
+app.MapGet("/isOnline", async (string name, [FromServices] IHazelcastService hazelcastService) =>
 {
-    var token = await activeUsersMap.GetAsync(name);
+    var token = await hazelcastService.GetActiveUserTokenAsync(name);
     return token != null ? Results.Ok("Online") : Results.Ok("Offline");
 });
 
-app.MapGet("/validate", async (string name, string token) =>
+app.MapGet("/validate", async (string name, string token, [FromServices] IHazelcastService hazelcastService) =>
 {
-    var activeToken = await activeUsersMap.GetAsync(name);
+    var activeToken = await hazelcastService.GetActiveUserTokenAsync(name);
     return activeToken == token ? Results.Ok("Valid") : Results.BadRequest("Invalid");
 });
 
