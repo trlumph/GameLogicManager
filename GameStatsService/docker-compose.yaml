@@ -1,0 +1,76 @@
+version: '3.8'
+
+networks:
+  game-logic-network:
+    name: game-logic-network
+    driver: bridge
+
+services:
+  cassandra-0:
+    image: bitnami/cassandra:latest
+    container_name: cassandra-server-0
+    ports:
+      - "9042:9042"
+    environment: &environment
+      - CASSANDRA_AUTHENTICATOR=AllowAllAuthenticator
+      - CASSANDRA_AUTHORIZER=AllowAllAuthorizer
+      - CASSANDRA_CLUSTER_NAME=GameStatsCluster
+      - CASSANDRA_NODES=cassandra-0,cassandra-1 #,cassandra-2
+      - CASSANDRA_SEEDS=cassandra-0
+    volumes:
+      - ./scripts/ddl.cql:/docker-entrypoint-initdb.d/ddl.cql
+    healthcheck: &healthcheck
+      test: ["CMD", "cqlsh", "-e", "DESCRIBE keyspaces;"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    # deploy: &deploy
+    #   resources:
+    #     limits:
+    #       memory: 3072M
+    networks:
+      - game-logic-network
+
+  cassandra-1:
+    image: bitnami/cassandra:latest
+    container_name: cassandra-server-1
+    ports:
+      - "9043:9042"
+    environment: *environment
+    volumes:
+      - ./scripts/ddl.cql:/docker-entrypoint-initdb.d/ddl.cql
+    depends_on:
+      cassandra-0:
+        condition: service_healthy
+    healthcheck: *healthcheck
+    # deploy: *deploy
+    networks:
+      - game-logic-network
+
+  # cassandra-2:
+  #   image: bitnami/cassandra:latest
+  #   container_name: cassandra-server-2
+  #   ports:
+  #     - "9044:9042"
+  #   environment: *environment
+  #   volumes:
+  #     - ./scripts/ddl.cql:/docker-entrypoint-initdb.d/ddl.cql
+  #   healthcheck: *healthcheck
+  #   deploy: *deploy
+  #   networks:
+  #     - game-logic-network
+
+  game-scores:
+    build: ./game-scores-app
+    image: game-scores-app
+    container_name: game-scores-app-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./game-scores-app:/app
+    depends_on:
+      cassandra-0:
+        condition: service_healthy
+    networks:
+      - game-logic-network
+    command: ["uvicorn", "rest_application:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
