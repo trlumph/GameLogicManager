@@ -53,6 +53,7 @@ AppDomain.CurrentDomain.UnhandledException += async (sender, eventArgs) =>
 const string ConnectionString = "server=127.0.0.1;uid=root;pwd=admin;database=mydb";
 var activeUsersMap = await hzClient.GetMapAsync<string, string>("activeUsers");
 
+var client = new HttpClient();
 
 app.MapPost("/register", async ([FromBody] User user) =>
 {
@@ -68,7 +69,10 @@ app.MapPost("/register", async ([FromBody] User user) =>
     var hash = BCrypt.Net.BCrypt.HashPassword(user.Password);
     addCmd.Parameters.AddWithValue("@password", hash);
     var result = await addCmd.ExecuteNonQueryAsync();
-    return result == 1 ? Results.Ok("User registered.") : Results.BadRequest("Registration failed.");
+    if (result == 0) return Results.BadRequest("Registration failed.");
+
+    await client.PostAsync($"http://localhost:8181/scores/user/{user.Name}", new StringContent(""));
+    return Results.Ok("Registered.");
 });
 
 app.MapPost("/login", async ([FromBody] User user) =>
@@ -105,6 +109,12 @@ app.MapGet("/isOnline", async (string name) =>
 {
     var token = await activeUsersMap.GetAsync(name);
     return token != null ? Results.Ok("Online") : Results.Ok("Offline");
+});
+
+app.MapGet("/validate", async (string name, string token) =>
+{
+    var activeToken = await activeUsersMap.GetAsync(name);
+    return activeToken == token ? Results.Ok("Valid") : Results.BadRequest("Invalid");
 });
 
 app.Run();

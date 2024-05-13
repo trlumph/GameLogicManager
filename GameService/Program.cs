@@ -19,21 +19,21 @@ gameManager.SetDatabase(database);
 var loopTaskCTS = new CancellationTokenSource();
 var loopTask = gameManager.HandleRequestsLoop(loopTaskCTS.Token);
 
-app.MapPost("/killMonster", (GameManager gameManager, string playerId) =>
+app.MapPost("/killMonster", (GameManager gameManager, string playerId, string token) =>
 {
-    gameManager.PostKillMonsterRequest(playerId);
+    gameManager.PostKillMonsterRequest(playerId, token);
     return Results.Accepted();
 });
 
-app.MapPost("/fightPlayer", (GameManager gameManager, string playerId, string opponentId) =>
+app.MapPost("/fightPlayer", (GameManager gameManager, string playerId, string token, string opponentId) =>
 {
-    gameManager.PostFightPlayerRequest(playerId, opponentId);
+    gameManager.PostFightPlayerRequest(playerId, token, opponentId);
     return Results.Accepted();
 });
 
-app.MapPost("/giftPlayer", (GameManager gameManager, string playerId, string toPlayer, int giftAmount) =>
+app.MapPost("/giftPlayer", (GameManager gameManager, string playerId, string token, string toPlayer, int giftAmount) =>
 {
-    gameManager.PostGiftPlayerRequest(playerId, toPlayer, giftAmount);
+    gameManager.PostGiftPlayerRequest(playerId, token, toPlayer, giftAmount);
     return Results.Accepted();
 });
 

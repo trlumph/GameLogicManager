@@ -5,7 +5,8 @@ namespace MessagesService;
 public class GameManager
 {
     private const int EnemyKillReward = 100;
-    private const string ScoreServiceUrl = "http://10.10.225.254:8080";
+    private const string ScoreServiceUrl = "http://localhost:8181";
+    private const string AuthServiceUrl = "http://localhost:5064";
 
     private HttpClient _client = new();
     private Database _database = null!;
@@ -17,17 +18,17 @@ public class GameManager
         _database = database;
     }
 
-    public void PostKillMonsterRequest(string playerId)
+    public void PostKillMonsterRequest(string playerId, string token)
     {
-        _requests.Enqueue(new KillMonsterRequest(RequestType.KillMonster, playerId));
+        _requests.Enqueue(new KillMonsterRequest(RequestType.KillMonster, playerId, token));
     }
-    public void PostFightPlayerRequest(string playerId, string opponentId)
+    public void PostFightPlayerRequest(string playerId, string token, string opponentId)
     {
-        _requests.Enqueue(new FightPlayerRequest(RequestType.FightPlayer, playerId, opponentId));
+        _requests.Enqueue(new FightPlayerRequest(RequestType.FightPlayer, playerId, token, opponentId));
     }
-    public void PostGiftPlayerRequest(string playerId, string toPlayer, int giftAmount)
+    public void PostGiftPlayerRequest(string playerId, string token, string toPlayer, int giftAmount)
     {
-        _requests.Enqueue(new GiftPlayerRequest(RequestType.GiftPlayer, playerId, toPlayer, giftAmount));
+        _requests.Enqueue(new GiftPlayerRequest(RequestType.GiftPlayer, playerId, token, toPlayer, giftAmount));
     }
 
     public async Task HandleRequestsLoop(CancellationToken cancellationToken)
@@ -36,11 +37,17 @@ public class GameManager
         {
             if (_requests.Count <= 0)
             {
-                await Task.Delay(100, cancellationToken);
+                await Task.Delay(50, cancellationToken);
                 continue;
             }
 
             var request = _requests.Dequeue();
+            var isValid = await _client.GetAsync($"{AuthServiceUrl}/validate?name={request.playerId}&token={request.token}", cancellationToken);
+            if (!isValid.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Invalid request from player {request.playerId}.");
+                continue;
+            }
 
             await _database.CreateAsync(new Database.ActionLog
             {
@@ -79,8 +86,9 @@ public class GameManager
 
     private async Task<int> GetPlayerScore(string playerId)
     {
-        var getRequestUri = $"{ScoreServiceUrl}/getscore?playerId={playerId}";
+        var getRequestUri = $"{ScoreServiceUrl}/scores/user/{playerId}";
         var response = await _client.GetAsync(getRequestUri);
+        if (!response.IsSuccessStatusCode) return 0;
         var score = int.Parse(await response.Content.ReadAsStringAsync());
         return score;
     }
