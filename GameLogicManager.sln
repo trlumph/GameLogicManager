@@ -1,18 +1,20 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacadeService", "FacadeService\FacadeService.csproj", "{64E8002D-D201-431E-A49D-FCB969C927B5}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacadeService", "FacadeService\FacadeService.csproj", "{64E8002D-D201-431E-A49D-FCB969C927B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{512FB64E-6C50-401C-8890-3A5F6FF95FC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthService", "AuthService\AuthService.csproj", "{512FB64E-6C50-401C-8890-3A5F6FF95FC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagesService", "MessagesService\MessagesService.csproj", "{72054317-50C0-4F5F-96FE-8501EFAEEFD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HazelcastBasics", "HazelcastBasics\HazelcastBasics.csproj", "{6B995A58-E5F4-47A8-9532-74B88C56E489}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HazelcastBasics", "HazelcastBasics\HazelcastBasics.csproj", "{6B995A58-E5F4-47A8-9532-74B88C56E489}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HazelcastBenchmarks", "HazelcastBenchmarks\HazelcastBenchmarks.csproj", "{C344BBEB-1B8A-4A44-B4B1-E685BC5119AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HazelcastBenchmarks", "HazelcastBenchmarks\HazelcastBenchmarks.csproj", "{C344BBEB-1B8A-4A44-B4B1-E685BC5119AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HazelcastTests", "HazelcastTests\HazelcastTests.csproj", "{FFCFE59A-B3F0-4B11-AB29-33457CB6F363}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HazelcastTests", "HazelcastTests\HazelcastTests.csproj", "{FFCFE59A-B3F0-4B11-AB29-33457CB6F363}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsulManagerService", "ConsulManagerService\ConsulManagerService.csproj", "{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsulManagerService", "ConsulManagerService\ConsulManagerService.csproj", "{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameService", "GameService\GameService.csproj", "{71DFD360-A6D8-46FB-BB6D-F456DBDBE6C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +30,6 @@ Global
 		{512FB64E-6C50-401C-8890-3A5F6FF95FC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{512FB64E-6C50-401C-8890-3A5F6FF95FC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{512FB64E-6C50-401C-8890-3A5F6FF95FC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72054317-50C0-4F5F-96FE-8501EFAEEFD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72054317-50C0-4F5F-96FE-8501EFAEEFD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72054317-50C0-4F5F-96FE-8501EFAEEFD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72054317-50C0-4F5F-96FE-8501EFAEEFD0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6B995A58-E5F4-47A8-9532-74B88C56E489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6B995A58-E5F4-47A8-9532-74B88C56E489}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B995A58-E5F4-47A8-9532-74B88C56E489}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,5 +46,15 @@ Global
 		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEBBCBAF-7F94-464B-B59C-62CDAAAE6F53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71DFD360-A6D8-46FB-BB6D-F456DBDBE6C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71DFD360-A6D8-46FB-BB6D-F456DBDBE6C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71DFD360-A6D8-46FB-BB6D-F456DBDBE6C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71DFD360-A6D8-46FB-BB6D-F456DBDBE6C7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13D342A0-6D3D-49F2-9ADF-A3ACEF86B1E5}
 	EndGlobalSection
 EndGlobal

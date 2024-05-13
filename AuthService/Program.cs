@@ -9,10 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var consulAddress = new Uri(builder.Configuration.GetValue<string>("ConsulConfig:Host")!);
 
 builder.Services.AddSingleton<IConsulClient, ConsulClient>(p =>
-    new ConsulClient(consulConfig =>
-    {
-        consulConfig.Address = consulAddress;
-    }));
+    new ConsulClient(consulConfig => { consulConfig.Address = consulAddress; }));
 
 builder.Services.AddSingleton<ConsulRegistrationManager>();
 builder.Services.AddSingleton<HazelcastConfigurationService>();
@@ -24,11 +21,9 @@ var hazelcastConfigService = app.Services.GetRequiredService<HazelcastConfigurat
 var selectedNode = await hazelcastConfigService.GetHazelcastNodeAsync();
 
 var hzOptions = new HazelcastOptionsBuilder()
-    .With((configuration, options) => 
-    {
-        options.Networking.Addresses.Add(selectedNode);
-    })
+    .With((configuration, options) => { options.Networking.Addresses.Add(selectedNode); })
     .Build();
+hzOptions.ClusterName = "hello-world";
 
 var hzClient = await HazelcastClientFactory.StartNewClientAsync(hzOptions);
 app.Logger.LogInformation("Connected to Hazelcast node: {SelectedNode}", selectedNode);
@@ -54,43 +49,60 @@ AppDomain.CurrentDomain.UnhandledException += async (sender, eventArgs) =>
 };
 
 // MySQL connection string setup
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+const string ConnectionString = "server=127.0.0.1;uid=root;pwd=admin;database=mydb";
 var activeUsersMap = await hzClient.GetMapAsync<string, string>("activeUsers");
 
 
-app.MapPost("/register", async ([FromBody] User user) => {
-    using var connection = new MySqlConnection(connectionString);
+app.MapPost("/register", async ([FromBody] User user) =>
+{
+    await using var connection = new MySqlConnection(ConnectionString);
     await connection.OpenAsync();
-    var cmd = new MySqlCommand("INSERT INTO users (name, password) VALUES (@name, @password)", connection);
-    cmd.Parameters.AddWithValue("@name", user.Name);
-    cmd.Parameters.AddWithValue("@password", BCrypt.Net.BCrypt.HashPassword(user.Password));
-    var result = await cmd.ExecuteNonQueryAsync();
+    var checkCmd = new MySqlCommand("SELECT COUNT(*) FROM users WHERE name = @name", connection);
+    checkCmd.Parameters.AddWithValue("@name", user.Name);
+    var count = (long)(await checkCmd.ExecuteScalarAsync())!;
+    if (count > 0) return Results.BadRequest("User already exists.");
+
+    var addCmd = new MySqlCommand("INSERT INTO users (name, password) VALUES (@name, @password)", connection);
+    addCmd.Parameters.AddWithValue("@name", user.Name);
+    var hash = BCrypt.Net.BCrypt.HashPassword(user.Password);
+    addCmd.Parameters.AddWithValue("@password", hash);
+    var result = await addCmd.ExecuteNonQueryAsync();
     return result == 1 ? Results.Ok("User registered.") : Results.BadRequest("Registration failed.");
 });
 
-app.MapPost("/login", async ([FromBody] User user) => {
-    using var connection = new MySqlConnection(connectionString);
+app.MapPost("/login", async ([FromBody] User user) =>
+{
+    var activeToken = await activeUsersMap.GetAsync(user.Name);
+    if (activeToken != null) return Results.BadRequest("User already logged in.");
+
+    await using var connection = new MySqlConnection(ConnectionString);
     await connection.OpenAsync();
     var cmd = new MySqlCommand("SELECT password FROM users WHERE name = @name", connection);
     cmd.Parameters.AddWithValue("@name", user.Name);
-    var dbPassword = (string)await cmd.ExecuteScalarAsync();
+    var dbPassword = (string?)await cmd.ExecuteScalarAsync();
 
     if (dbPassword != null && BCrypt.Net.BCrypt.Verify(user.Password, dbPassword))
     {
         var token = Guid.NewGuid().ToString();
         await activeUsersMap.SetAsync(user.Name, token);
-        return Results.Ok(new { Token = token });
+        return Results.Ok(new {Token = token});
     }
     return Results.BadRequest("Invalid credentials.");
 });
 
-app.MapPost("/logout", async ([FromBody] TokenRequest request) => {
-    var tokenRemoved = await activeUsersMap.RemoveAsync(request.Token);
-    return tokenRemoved is not null ? Results.Ok("Logged out.") : Results.BadRequest("Invalid token.");
+app.MapPost("/logout", async ([FromBody] LogoutRequest request) =>
+{
+    var token = await activeUsersMap.GetAsync(request.Name);
+    if (token == null) return Results.BadRequest("User not logged in.");
+    if (token != request.Token) return Results.BadRequest("Invalid token.");
+
+    await activeUsersMap.DeleteAsync(request.Name);
+    return Results.Ok("Logged out.");
 });
 
-app.MapGet("/isOnline", async (string name) => {
+app.MapGet("/isOnline", async (string name) =>
+{
     var token = await activeUsersMap.GetAsync(name);
     return token != null ? Results.Ok("Online") : Results.Ok("Offline");
 });
@@ -98,4 +110,5 @@ app.MapGet("/isOnline", async (string name) => {
 app.Run();
 
 record User(string Name, string Password);
-record TokenRequest(string Token);
+
+record LogoutRequest(string Name, string Token);

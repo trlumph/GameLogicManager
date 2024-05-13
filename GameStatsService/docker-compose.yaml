@@ -15,7 +15,7 @@ services:
       - CASSANDRA_AUTHENTICATOR=AllowAllAuthenticator
       - CASSANDRA_AUTHORIZER=AllowAllAuthorizer
       - CASSANDRA_CLUSTER_NAME=GameStatsCluster
-      - CASSANDRA_NODES=cassandra-0,cassandra-1 #,cassandra-2
+      - CASSANDRA_NODES=cassandra-0 #,cassandra-1 #,cassandra-2
       - CASSANDRA_SEEDS=cassandra-0
     volumes:
       - ./scripts/ddl.cql:/docker-entrypoint-initdb.d/ddl.cql
@@ -31,21 +31,21 @@ services:
     networks:
       - game-logic-network
 
-  cassandra-1:
-    image: bitnami/cassandra:latest
-    container_name: cassandra-server-1
-    ports:
-      - "9043:9042"
-    environment: *environment
-    volumes:
-      - ./scripts/ddl.cql:/docker-entrypoint-initdb.d/ddl.cql
-    depends_on:
-      cassandra-0:
-        condition: service_healthy
-    healthcheck: *healthcheck
-    # deploy: *deploy
-    networks:
-      - game-logic-network
+  # cassandra-1:
+  #   image: bitnami/cassandra:latest
+  #   container_name: cassandra-server-1
+  #   ports:
+  #     - "9043:9042"
+  #   environment: *environment
+  #   volumes:
+  #     - ./scripts/ddl.cql:/docker-entrypoint-initdb.d/ddl.cql
+  #   depends_on:
+  #     cassandra-0:
+  #       condition: service_healthy
+  #   healthcheck: *healthcheck
+  #   # deploy: *deploy
+  #   networks:
+  #     - game-logic-network
 
   # cassandra-2:
   #   image: bitnami/cassandra:latest

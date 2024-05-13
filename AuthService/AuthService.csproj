@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>LoggingService</RootNamespace>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,5 +25,4 @@
     <ItemGroup>
       <ProjectReference Include="..\ConsulManagerService\ConsulManagerService.csproj" />
     </ItemGroup>
-
 </Project>

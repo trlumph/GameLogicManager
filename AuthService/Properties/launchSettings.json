@@ -1,6 +1,6 @@
 ﻿{
   "profiles": {
-    "LoggingService1": {
+    "AutoService1": {
       "commandName": "Project",
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5064",
@@ -9,7 +9,7 @@
         "HAZELCAST_NODE": "localhost:5701"
       }
     },
-    "LoggingService2": {
+    "AutoService2": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {
@@ -17,7 +17,7 @@
         "ASPNETCORE_URLS": "http://localhost:5065"
       }
     },
-    "LoggingService3": {
+    "AutoService3": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {

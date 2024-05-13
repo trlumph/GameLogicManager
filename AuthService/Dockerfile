@@ -6,17 +6,17 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["LoggingService/LoggingService.csproj", "LoggingService/"]
-RUN dotnet restore "LoggingService/LoggingService.csproj"
+COPY ["AuthService/AuthService.csproj", "AuthService/"]
+RUN dotnet restore "AuthService/AuthService.csproj"
 COPY . .
-WORKDIR "/src/LoggingService"
-RUN dotnet build "LoggingService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/AuthService"
+RUN dotnet build "AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "LoggingService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LoggingService.dll"]
+ENTRYPOINT ["dotnet", "AuthService.dll"]
