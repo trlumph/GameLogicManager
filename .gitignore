@@ -399,3 +399,5 @@ Release/
 /build/
 *.log
 *.DS_Store
+
+APZProjectApp/

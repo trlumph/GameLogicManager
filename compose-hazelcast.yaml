@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:  
+  hazel-node-1:
+    image: hazelcast/hazelcast:5.3.6
+    networks:
+      - hazelcast-network
+    container_name: hazel-node-1
+    environment:
+      HZ_CLUSTERNAME: dev
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-1:5701"
+    ports:
+      - "5701:5701"
+
+  hazel-node-2:
+    image: hazelcast/hazelcast:5.3.6
+    networks:
+      - hazelcast-network
+    container_name: hazel-node-2
+    environment:
+      HZ_CLUSTERNAME: dev
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-2:5702"
+    ports:
+      - "5702:5701"
+    depends_on:
+      - hazel-node-1
+
+  hazel-node-3:
+    image: hazelcast/hazelcast:5.3.6
+    networks:
+      - hazelcast-network
+    container_name: hazel-node-3
+    environment:
+      HZ_CLUSTERNAME: dev
+      HZ_NETWORK_PUBLICADDRESS: "hazel-node-3:5703"
+    ports:
+      - "5703:5701"
+    depends_on: 
+      - hazel-node-1
+
+
+networks:
+  hazelcast-network:
+    driver: bridge
+    name: hazelcast-network

@@ -1,0 +1,22 @@
+version: '3.8'
+
+networks:
+  game-logic-network:
+    name: game-logic-network
+    driver: bridge
+
+services:
+    mongodb:
+        image: mongo:latest
+        container_name: mongodb-server
+        ports:
+          - "27017:27017"
+        volumes:
+          - mongodb-data:/data/db
+        healthcheck:
+          test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+        networks:
+          - game-logic-network
+
+volumes:
+  mongodb-data:

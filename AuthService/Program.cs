@@ -32,8 +32,9 @@ var selectedNode = await hazelcastConfigService.GetHazelcastNodeAsync();
 var hzOptions = new HazelcastOptionsBuilder()
     .With((configuration, options) => { options.Networking.Addresses.Add(selectedNode); })
     .Build();
-hzOptions.ClusterName = "hello-world";
+hzOptions.ClusterName = builder.Configuration.GetValue<string>("HazelcastConfig:GroupKey");
 
+app.Logger.LogInformation("Connecting to Hazelcast node: {SelectedNode}", selectedNode);
 var hzClient = await HazelcastClientFactory.StartNewClientAsync(hzOptions);
 app.Logger.LogInformation("Connected to Hazelcast node: {SelectedNode}", selectedNode);
 
